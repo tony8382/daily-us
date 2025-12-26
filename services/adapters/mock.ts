@@ -5,7 +5,7 @@ import { DailyUsApiInterface, CoupleProfile, FeedItem, MoodStatus, User } from '
 // For now, I'll copy the data structure here to be self-contained in the service layer 
 // or import it if we want to keep `data/mock.ts` as the "database".
 // Let's import to minimize code duplication for now, but eventually `data/mock.ts` should be retired.
-import { MOCK_COUPLE, MOCK_FEED, MOCK_MOOD } from '../../data/mock';
+import { MOCK_COUPLE, MOCK_FEED, MOCK_MOOD, MOCK_USER_CURRENT } from '../../data/mock';
 
 export class MockAdapter implements DailyUsApiInterface {
     async getCoupleProfile(): Promise<CoupleProfile> {
@@ -23,8 +23,26 @@ export class MockAdapter implements DailyUsApiInterface {
         await new Promise(resolve => setTimeout(resolve, 500));
         // Simulate updating the mock object
         MOCK_MOOD.note = note;
-        MOCK_MOOD.lastUpdated = new Date().toISOString();
+        MOCK_MOOD.lastUpdatedDate = new Date();
         return { ...MOCK_MOOD };
+    }
+
+    async createPost(post: Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked'>): Promise<FeedItem> {
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        const newPost: FeedItem = {
+            id: Math.random().toString(36).substr(2, 9),
+            ...post,
+            createdDate: new Date(), // Created now
+            likes: { count: 0, lastLikedBy: MOCK_USER_CURRENT }, // Default likes
+            comments: 0,
+            isLiked: false,
+        };
+
+        // Prepend to mock feed
+        MOCK_FEED.unshift(newPost);
+
+        return newPost;
     }
 
     async getFeed(): Promise<FeedItem[]> {

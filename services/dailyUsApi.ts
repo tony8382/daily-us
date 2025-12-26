@@ -3,6 +3,8 @@ import { MockAdapter } from './adapters/mock';
 
 // Here we can switch between Mock and Real based on env var
 const USE_MOCK = true;
+// Import needed for types in createPost signature
+import { FeedItem } from './api.types';
 
 class DailyUsApiService {
     private adapter: DailyUsApiInterface;
@@ -26,6 +28,10 @@ class DailyUsApiService {
 
     updateMood(note: string) {
         return this.adapter.updateMood(note);
+    }
+
+    createPost(post: Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked'>) {
+        return this.adapter.createPost(post);
     }
 
     get feed() {

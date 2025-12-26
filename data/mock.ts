@@ -4,6 +4,10 @@ export const MOCK_USER_CURRENT: User = {
     id: 'u1',
     name: 'Sarah',
     avatar: 'https://i.pravatar.cc/150?u=sarah',
+    config: {
+        maxImagesPerPost: 5,
+        maxDescriptionLength: 200,
+    }
 };
 
 export const MOCK_USER_PARTNER: User = {
@@ -20,7 +24,7 @@ export const MOCK_COUPLE: CoupleProfile = {
 };
 
 export const MOCK_MOOD: MoodStatus = {
-    lastUpdated: new Date().toISOString(),
+    lastUpdatedDate: new Date(),
     mood: 'Missing you',
     note: 'Missing you a little extra today...',
     authorId: 'u1',
@@ -30,8 +34,8 @@ export const MOCK_FEED: FeedItem[] = [
     {
         id: 'f1',
         type: 'photo',
-        date: '2023-10-05',
-        displayDate: { day: '05', month: 'OCT' },
+        createdDate: new Date('2023-10-10T10:00:00Z'),
+        lastUpdatedDate: new Date('2023-10-10T16:00:00Z'),
         title: 'Kyoto Adventures 🍵',
         description: 'The matcha ice cream was amazing! Can’t wait to go back. Walking through Fushimi Inari was tiring but worth it for the view.',
         media: [
@@ -47,8 +51,8 @@ export const MOCK_FEED: FeedItem[] = [
     {
         id: 'f2',
         type: 'video',
-        date: '2023-09-12',
-        displayDate: { day: '12', month: 'SEP' },
+        createdDate: new Date('2023-09-12T18:30:00Z'),
+        lastUpdatedDate: new Date('2023-09-12T18:30:00Z'),
         title: 'Movie Marathon Night 🍿',
         description: 'Late night Harry Potter marathon. I fell asleep halfway through the 4th...',
         media: [
@@ -61,8 +65,8 @@ export const MOCK_FEED: FeedItem[] = [
     {
         id: 'f3',
         type: 'text',
-        date: '2023-09-12',
-        displayDate: { day: '12', month: 'SEP' },
+        createdDate: new Date('2023-09-12T20:00:00Z'),
+        lastUpdatedDate: new Date('2023-09-12T20:00:00Z'),
         title: 'Movie Marathon Night 🍿',
         description: 'Late night Harry Potter marathon. I fell asleep halfway through the 4th...',
         media: [

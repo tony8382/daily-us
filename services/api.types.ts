@@ -1,7 +1,13 @@
+export interface UserConfig {
+    maxImagesPerPost: number;
+    maxDescriptionLength: number;
+}
+
 export interface User {
     id: string;
     name: string;
     avatar: string;
+    config?: UserConfig;
 }
 
 export interface CoupleProfile {
@@ -13,7 +19,7 @@ export interface CoupleProfile {
 }
 
 export interface MoodStatus {
-    lastUpdated: string;
+    lastUpdatedDate: Date;
     mood: string;
     note: string;
     authorId: string;
@@ -22,11 +28,8 @@ export interface MoodStatus {
 export interface FeedItem {
     id: string;
     type: 'photo' | 'video' | 'text';
-    date: string; // ISO String for sorting
-    displayDate: {
-        day: string;
-        month: string;
-    }; // For the left side indicator
+    createdDate: Date;
+    lastUpdatedDate: Date;
     title: string;
     description: string;
     media: string[]; // URLs
@@ -44,4 +47,5 @@ export interface DailyUsApiInterface {
     getMoodStatus(): Promise<MoodStatus>;
     updateMood(note: string): Promise<MoodStatus>;
     getFeed(): Promise<FeedItem[]>;
+    createPost(post: Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked'>): Promise<FeedItem>;
 }

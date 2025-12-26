@@ -1,7 +1,8 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, TouchableOpacity, useColorScheme } from 'react-native';
-import { MemoriesScreen, CalendarScreen, SettingsScreen, AddPostScreen } from '../screens/PlaceholderScreens';
+import { MemoriesScreen, CalendarScreen, SettingsScreen } from '../screens/PlaceholderScreens';
 import HomeScreen from '../screens/HomeScreen';
+import AddPostScreen from '../screens/AddPostScreen';
 import { Feather } from '@expo/vector-icons';
 import clsx from 'clsx';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

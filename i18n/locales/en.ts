@@ -3,6 +3,7 @@ export const en = {
         together: "Together",
         upcoming: "Upcoming",
         loading: "Loading...",
+        error: "Error",
     },
     home: {
         moodTitle: "Current Mood",
@@ -28,6 +29,7 @@ export type TranslationKey =
     | "common.together"
     | "common.upcoming"
     | "common.loading"
+    | "common.error"
     | "home.moodTitle"
     | "home.anniversary"
     | "home.lovingFor"
