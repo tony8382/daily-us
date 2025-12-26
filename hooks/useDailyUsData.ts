@@ -29,5 +29,14 @@ export const useDailyUsData = () => {
         loadData();
     }, []);
 
-    return { profile, mood, feed, loading };
+    const updateMood = async (note: string) => {
+        try {
+            const newMood = await api.updateMood(note);
+            setMood(newMood);
+        } catch (error) {
+            console.error('Failed to update mood', error);
+        }
+    };
+
+    return { profile, mood, feed, loading, updateMood };
 };

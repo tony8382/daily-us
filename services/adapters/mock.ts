@@ -19,6 +19,14 @@ export class MockAdapter implements DailyUsApiInterface {
         return MOCK_MOOD;
     }
 
+    async updateMood(note: string): Promise<MoodStatus> {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        // Simulate updating the mock object
+        MOCK_MOOD.note = note;
+        MOCK_MOOD.lastUpdated = new Date().toISOString();
+        return { ...MOCK_MOOD };
+    }
+
     async getFeed(): Promise<FeedItem[]> {
         await new Promise(resolve => setTimeout(resolve, 800));
         return MOCK_FEED;

@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, TouchableOpacity, TextInput } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { MoodStatus } from '../../services/api.types';
 import { ThemedText } from '../ui/ThemedText';
@@ -12,8 +12,24 @@ const CountdownItem = ({ value, label }: { value: string; label: string }) => (
     </View>
 );
 
-export const MoodStatusCard = ({ mood, daysTogether }: { mood: MoodStatus | null, daysTogether: number }) => {
+interface MoodStatusCardProps {
+    mood: MoodStatus | null;
+    daysTogether: number;
+    onUpdateMood?: (note: string) => void;
+}
+
+export const MoodStatusCard = ({ mood, daysTogether, onUpdateMood }: MoodStatusCardProps) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [editValue, setEditValue] = useState(mood?.note || '');
+
     if (!mood) return null;
+
+    const handleSave = () => {
+        if (onUpdateMood && editValue.trim() !== mood.note) {
+            onUpdateMood(editValue);
+        }
+        setIsEditing(false);
+    };
 
     return (
         <View className="px-4 mb-6">
@@ -23,11 +39,33 @@ export const MoodStatusCard = ({ mood, daysTogether }: { mood: MoodStatus | null
                 <View className="mb-6">
                     <View className="flex-row items-center justify-between mb-2">
                         <ThemedText className="text-[10px] font-bold text-red-400 tracking-widest uppercase">{t('home.moodTitle')}</ThemedText>
-                        <TouchableOpacity>
-                            <Feather name="edit-2" size={14} className="text-text-secondary" />
+                        <TouchableOpacity onPress={() => {
+                            if (isEditing) handleSave();
+                            else {
+                                setEditValue(mood.note);
+                                setIsEditing(true);
+                            }
+                        }}>
+                            <Feather
+                                name={isEditing ? "check" : "edit-2"}
+                                size={14}
+                                className={isEditing ? "text-green-500" : "text-text-secondary"}
+                            />
                         </TouchableOpacity>
                     </View>
-                    <ThemedText className="text-lg font-medium italic opacity-90">"{mood.note}"</ThemedText>
+
+                    {isEditing ? (
+                        <TextInput
+                            value={editValue}
+                            onChangeText={setEditValue}
+                            className="text-lg font-medium italic text-text-primary p-0"
+                            autoFocus
+                            multiline
+                            onBlur={handleSave}
+                        />
+                    ) : (
+                        <ThemedText className="text-lg font-medium italic opacity-90">"{mood.note}"</ThemedText>
+                    )}
                 </View>
 
                 {/* Divider */}

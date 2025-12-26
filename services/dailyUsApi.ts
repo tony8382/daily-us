@@ -24,6 +24,10 @@ class DailyUsApiService {
         return this.adapter.getMoodStatus();
     }
 
+    updateMood(note: string) {
+        return this.adapter.updateMood(note);
+    }
+
     get feed() {
         return this.adapter.getFeed();
     }

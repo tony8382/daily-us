@@ -35,11 +35,13 @@ export interface FeedItem {
         count: number;
         lastLikedBy: User;
     };
+    isLiked: boolean; // Current user liked status
     comments: number;
 }
 
 export interface DailyUsApiInterface {
     getCoupleProfile(): Promise<CoupleProfile>;
     getMoodStatus(): Promise<MoodStatus>;
+    updateMood(note: string): Promise<MoodStatus>;
     getFeed(): Promise<FeedItem[]>;
 }

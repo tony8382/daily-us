@@ -1,42 +1,4 @@
-export interface User {
-    id: string;
-    name: string;
-    avatar: string;
-}
-
-export interface CoupleProfile {
-    user1: User;
-    user2: User;
-    anniversaryDate: string; // ISO String
-    coverImage?: string;
-    daysTogether: number;
-}
-
-export interface MoodStatus {
-    lastUpdated: string;
-    mood: string;
-    note: string;
-    authorId: string;
-}
-
-export interface FeedItem {
-    id: string;
-    type: 'photo' | 'video' | 'text';
-    date: string; // ISO String for sorting
-    displayDate: {
-        day: string;
-        month: string;
-    }; // For the left side indicator
-    title: string;
-    description: string;
-    media: string[]; // URLs
-    location?: string;
-    likes: {
-        count: number;
-        lastLikedBy: User;
-    };
-    comments: number;
-}
+import { CoupleProfile, FeedItem, MoodStatus, User } from "services/api.types";
 
 export const MOCK_USER_CURRENT: User = {
     id: 'u1',
@@ -79,6 +41,7 @@ export const MOCK_FEED: FeedItem[] = [
         ],
         location: 'Kyoto, Japan',
         likes: { count: 3, lastLikedBy: MOCK_USER_PARTNER },
+        isLiked: false,
         comments: 2,
     },
     {
@@ -92,6 +55,7 @@ export const MOCK_FEED: FeedItem[] = [
             'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80', // TV/Movie placeholder
         ],
         likes: { count: 1, lastLikedBy: MOCK_USER_CURRENT },
+        isLiked: true, // This one is liked by current user
         comments: 4,
     },
     {
@@ -105,6 +69,7 @@ export const MOCK_FEED: FeedItem[] = [
             'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80', // TV/Movie placeholder
         ],
         likes: { count: 1, lastLikedBy: MOCK_USER_CURRENT },
+        isLiked: true,
         comments: 4,
     }
 ];

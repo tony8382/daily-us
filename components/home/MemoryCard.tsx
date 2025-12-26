@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Image, TouchableOpacity } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { FeedItem } from '../../services/api.types';
 import { ThemedText } from '../ui/ThemedText';
 import { t } from '../../i18n/t';
@@ -106,7 +106,11 @@ export const MemoryCard = ({ item }: { item: FeedItem }) => {
                 {/* Footer Actions */}
                 <View className="flex-row items-center justify-between mt-2 pt-3 border-t border-border">
                     <View className="flex-row items-center gap-2">
-                        <Feather name="heart" size={16} color="#ef4444" fill="#ef4444" />
+                        <Ionicons
+                            name={item.isLiked ? "heart" : "heart-outline"}
+                            size={20}
+                            color="#ef4444"
+                        />
                         <ThemedText className="text-xs text-text-secondary font-medium">
                             <ThemedText className="font-bold text-text-primary">{item.likes.lastLikedBy.name}</ThemedText> {t('feed.likedThis')}
                         </ThemedText>

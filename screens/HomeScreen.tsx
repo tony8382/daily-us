@@ -9,7 +9,7 @@ import { ThemedText } from '../components/ui/ThemedText';
 import { t } from '../i18n/t';
 
 export default function HomeScreen() {
-    const { profile, mood, feed, loading } = useDailyUsData();
+    const { profile, mood, feed, loading, updateMood } = useDailyUsData();
     const ref = useRef<FlatList>(null);
     const navigation = useNavigation();
 
@@ -45,7 +45,11 @@ export default function HomeScreen() {
                 renderItem={({ item }) => <MemoryCard item={item} />}
                 ListHeaderComponent={() => (
                     <View>
-                        <MoodStatusCard mood={mood} daysTogether={profile?.daysTogether || 0} />
+                        <MoodStatusCard
+                            mood={mood}
+                            daysTogether={profile?.daysTogether || 0}
+                            onUpdateMood={updateMood}
+                        />
                         <View className="h-4" />
                         <View className="flex-row items-center justify-center mb-6">
                             <ThemedText className="text-[10px] font-bold tracking-widest text-text-secondary uppercase">{t('home.memories')}</ThemedText>
