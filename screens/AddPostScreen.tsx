@@ -1,9 +1,9 @@
 import { Feather, Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import clsx from 'clsx';
 import * as ImagePicker from 'expo-image-picker';
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Alert, Image, ScrollView, TextInput, TouchableOpacity, View, Platform, Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from '../components/ui/ThemedText';
@@ -25,6 +25,12 @@ export default function AddPostScreen() {
     const [newHashtag, setNewHashtag] = useState('');
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
+
+    useFocusEffect(
+        useCallback(() => {
+            resetForm();
+        }, [])
+    );
 
     const pickImage = async () => {
         if (selectedImages.length >= config.maxImagesPerPost) {
@@ -69,6 +75,15 @@ export default function AddPostScreen() {
         }
     };
 
+    const resetForm = () => {
+        setSelectedImages([]);
+        setTitle('');
+        setDescription('');
+        setHashtags([]);
+        setNewHashtag('');
+        setSelectedDate(new Date());
+    };
+
     const handlePost = async () => {
         if (!title.trim()) {
             Alert.alert(t('common.error'), "Please enter a title");
@@ -83,6 +98,7 @@ export default function AddPostScreen() {
                 media: selectedImages,
                 lastUpdatedDate: selectedDate,
             });
+            resetForm();
             navigation.goBack();
         } catch (error) {
             console.error(error);
