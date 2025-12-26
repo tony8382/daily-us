@@ -4,6 +4,7 @@ export const en = {
         upcoming: "Upcoming",
         loading: "Loading...",
         error: "Error",
+        done: "Done",
     },
     home: {
         moodTitle: "Current Mood",
@@ -19,26 +20,33 @@ export const en = {
     },
     feed: {
         video: "Video",
-        tripDay2: "Trip Day 2", // Example specific label
+        tripDay2: "Trip Day 2",
         likedThis: "liked this",
         reply: "Reply",
+    },
+    tabs: {
+        home: "Home",
+        memories: "Memories",
+        calendar: "Calendar",
+        settings: "Settings",
+    },
+    addPost: {
+        title: "New Post",
+        cancel: "Cancel",
+        post: "Post",
+        mediaLibrary: "Media Library",
+        addMedia: "Add Media",
+        content: "Content",
+        labelTitle: "Memory Title...",
+        labelStory: "Write your story here...",
+        details: "Details",
+        publishedDate: "Published Date",
+        hashtags: "Hashtags",
+        addTag: "add_tag",
+        postButton: "Post Memory",
+        limitTitle: "Limit Reached",
+        limitMessage: "You can only upload up to 5 images.",
+        errorCreate: "Failed to create post",
+        errorTitle: "Please enter a title",
     }
 };
-
-export type TranslationKey =
-    | "common.together"
-    | "common.upcoming"
-    | "common.loading"
-    | "common.error"
-    | "home.moodTitle"
-    | "home.anniversary"
-    | "home.lovingFor"
-    | "home.days"
-    | "home.memories"
-    | "time.months"
-    | "time.days"
-    | "time.hours"
-    | "feed.video"
-    | "feed.tripDay2"
-    | "feed.likedThis"
-    | "feed.reply";

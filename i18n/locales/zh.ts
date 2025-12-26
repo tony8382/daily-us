@@ -1,0 +1,52 @@
+export const zh = {
+    common: {
+        together: "在一起",
+        upcoming: "即將到來",
+        loading: "載入中...",
+        error: "錯誤",
+        done: "完成",
+    },
+    home: {
+        moodTitle: "目前心情",
+        anniversary: "3 週年紀念",
+        lovingFor: "相愛",
+        days: "天",
+        memories: "回憶",
+    },
+    time: {
+        months: "月",
+        days: "天",
+        hours: "小時",
+    },
+    feed: {
+        video: "影片",
+        tripDay2: "旅程第 2 天",
+        likedThis: "按了讚",
+        reply: "回覆",
+    },
+    tabs: {
+        home: "首頁",
+        memories: "回憶",
+        calendar: "行事曆",
+        settings: "設定",
+    },
+    addPost: {
+        title: "新增貼文",
+        cancel: "取消",
+        post: "發佈",
+        mediaLibrary: "媒體庫",
+        addMedia: "新增媒體",
+        content: "內容",
+        labelTitle: "回憶標題...",
+        labelStory: "在這裡寫下你的故事...",
+        details: "詳情",
+        publishedDate: "發佈日期",
+        hashtags: "標籤",
+        addTag: "新增標籤",
+        postButton: "發布回憶",
+        limitTitle: "達到上限",
+        limitMessage: "您最多只能上傳 5 張照片。",
+        errorCreate: "無法建立貼文",
+        errorTitle: "請輸入標題",
+    }
+};

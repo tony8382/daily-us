@@ -1,14 +1,14 @@
 import { Feather, Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import clsx from 'clsx';
 import * as ImagePicker from 'expo-image-picker';
-import React, { useState, useCallback } from 'react';
-import { Alert, Image, ScrollView, TextInput, TouchableOpacity, View, Platform, Modal } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { Alert, Image, Modal, Platform, ScrollView, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from '../components/ui/ThemedText';
 import { MOCK_USER_CURRENT } from '../data/mock';
-import { t } from '../i18n/t';
+import { t, getLocale } from '../i18n/t';
 import { api } from '../services/dailyUsApi';
 
 export default function AddPostScreen() {
@@ -34,7 +34,7 @@ export default function AddPostScreen() {
 
     const pickImage = async () => {
         if (selectedImages.length >= config.maxImagesPerPost) {
-            Alert.alert("Limit Reached", `You can only upload up to ${config.maxImagesPerPost} images.`);
+            Alert.alert(t('addPost.limitTitle'), t('addPost.limitMessage'));
             return;
         }
 
@@ -86,7 +86,7 @@ export default function AddPostScreen() {
 
     const handlePost = async () => {
         if (!title.trim()) {
-            Alert.alert(t('common.error'), "Please enter a title");
+            Alert.alert(t('common.error'), t('addPost.errorTitle'));
             return;
         }
 
@@ -102,11 +102,11 @@ export default function AddPostScreen() {
             navigation.goBack();
         } catch (error) {
             console.error(error);
-            Alert.alert("Error", "Failed to create post");
+            Alert.alert(t('common.error'), t('addPost.errorCreate'));
         }
     };
 
-    const formattedDate = selectedDate.toLocaleDateString('en-US', {
+    const formattedDate = selectedDate.toLocaleDateString(getLocale(), {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -117,11 +117,11 @@ export default function AddPostScreen() {
             {/* Header */}
             <View className="flex-row items-center justify-between px-4 py-3 border-b border-border mb-2">
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <ThemedText className="text-text-secondary text-base">Cancel</ThemedText>
+                    <ThemedText className="text-text-secondary text-base">{t('addPost.cancel')}</ThemedText>
                 </TouchableOpacity>
-                <ThemedText className="text-lg font-bold">New Post</ThemedText>
+                <ThemedText className="text-lg font-bold">{t('addPost.title')}</ThemedText>
                 <TouchableOpacity onPress={handlePost}>
-                    <ThemedText className="text-blue-500 font-bold text-base">Post</ThemedText>
+                    <ThemedText className="text-blue-500 font-bold text-base">{t('addPost.post')}</ThemedText>
                 </TouchableOpacity>
             </View>
 
@@ -130,7 +130,7 @@ export default function AddPostScreen() {
                 {/* Media Section */}
                 <View className="px-4 mb-6">
                     <View className="flex-row items-center justify-between mb-3">
-                        <ThemedText className="text-text-secondary font-medium text-sm">Media Library</ThemedText>
+                        <ThemedText className="text-text-secondary font-medium text-sm">{t('addPost.mediaLibrary')}</ThemedText>
                         <ThemedText className="text-text-secondary text-xs">{selectedImages.length}/{config.maxImagesPerPost}</ThemedText>
                     </View>
 
@@ -140,7 +140,7 @@ export default function AddPostScreen() {
                             className="w-24 h-24 rounded-2xl border border-dashed border-border items-center justify-center bg-surface"
                         >
                             <Ionicons name="add-circle-outline" size={32} color="#71717a" />
-                            <ThemedText className="text-[10px] text-text-secondary mt-1">Add Media</ThemedText>
+                            <ThemedText className="text-[10px] text-text-secondary mt-1">{t('addPost.addMedia')}</ThemedText>
                         </TouchableOpacity>
 
                         {selectedImages.map((uri, index) => (
@@ -159,10 +159,10 @@ export default function AddPostScreen() {
 
                 {/* Content Section */}
                 <View className="px-4 mb-6">
-                    <ThemedText className="text-text-secondary font-medium mb-3 text-sm">Content</ThemedText>
+                    <ThemedText className="text-text-secondary font-medium mb-3 text-sm">{t('addPost.content')}</ThemedText>
                     <View className="bg-surface rounded-3xl border border-border p-5 pb-2 shadow-sm">
                         <TextInput
-                            placeholder="Memory Title..."
+                            placeholder={t('addPost.labelTitle')}
                             placeholderTextColor="#52525b"
                             value={title}
                             onChangeText={setTitle}
@@ -170,7 +170,7 @@ export default function AddPostScreen() {
                         />
 
                         <TextInput
-                            placeholder="Write your story here..."
+                            placeholder={t('addPost.labelStory')}
                             placeholderTextColor="#71717a"
                             value={description}
                             onChangeText={(text) => {
@@ -196,12 +196,12 @@ export default function AddPostScreen() {
 
                 {/* Details Section */}
                 <View className="px-4 mb-6">
-                    <ThemedText className="text-text-secondary font-medium mb-3 text-sm">Details</ThemedText>
+                    <ThemedText className="text-text-secondary font-medium mb-3 text-sm">{t('addPost.details')}</ThemedText>
 
                     <View className="bg-surface rounded-3xl border border-border p-5 shadow-sm">
                         {/* Date Selection */}
                         <View className="mb-6">
-                            <ThemedText className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Published Date</ThemedText>
+                            <ThemedText className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">{t('addPost.publishedDate')}</ThemedText>
                             <TouchableOpacity
                                 onPress={() => setShowDatePicker(true)}
                                 className="flex-row items-center justify-between bg-background border border-border rounded-2xl px-4 py-4"
@@ -213,7 +213,7 @@ export default function AddPostScreen() {
 
                         {/* Hashtags */}
                         <View>
-                            <ThemedText className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Hashtags</ThemedText>
+                            <ThemedText className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">{t('addPost.hashtags')}</ThemedText>
 
                             <View className="flex-row flex-wrap gap-2 mb-3">
                                 {hashtags.map((tag, idx) => (
@@ -229,7 +229,7 @@ export default function AddPostScreen() {
                             <View className="flex-row items-center bg-background border border-border rounded-2xl px-4 overflow-hidden">
                                 <ThemedText className="text-text-secondary font-bold mr-1">#</ThemedText>
                                 <TextInput
-                                    placeholder="add_tag"
+                                    placeholder={t('addPost.addTag')}
                                     placeholderTextColor="#52525b"
                                     value={newHashtag}
                                     onChangeText={setNewHashtag}
@@ -246,13 +246,13 @@ export default function AddPostScreen() {
                     </View>
                 </View>
 
-                {/* Final Actions */}
-                <View className="px-4 mb-4">
+                {/* Final Post Button */}
+                <View className="px-4 mt-4">
                     <TouchableOpacity
                         onPress={handlePost}
-                        className="bg-blue-500 rounded-2xl py-5 items-center shadow-lg shadow-blue-500/20"
+                        className="bg-blue-500 rounded-3xl py-5 items-center justify-center shadow-lg shadow-blue-500/25"
                     >
-                        <ThemedText className="font-bold text-white text-lg">Post Memory</ThemedText>
+                        <ThemedText className="text-white font-bold text-lg">{t('addPost.postButton')}</ThemedText>
                     </TouchableOpacity>
                 </View>
 
@@ -269,10 +269,10 @@ export default function AddPostScreen() {
                         <View className="bg-surface rounded-t-3xl pb-10">
                             <View className="flex-row justify-between items-center px-6 py-4 border-b border-border">
                                 <TouchableOpacity onPress={() => setShowDatePicker(false)}>
-                                    <ThemedText className="text-text-secondary font-medium">Cancel</ThemedText>
+                                    <ThemedText className="text-text-secondary font-medium">{t('addPost.cancel')}</ThemedText>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => setShowDatePicker(false)}>
-                                    <ThemedText className="text-blue-500 font-bold">Done</ThemedText>
+                                    <ThemedText className="text-blue-500 font-bold">{t('common.done')}</ThemedText>
                                 </TouchableOpacity>
                             </View>
                             <DateTimePicker

@@ -4,6 +4,7 @@ import { MemoriesScreen, CalendarScreen, SettingsScreen } from '../screens/Place
 import HomeScreen from '../screens/HomeScreen';
 import AddPostScreen from '../screens/AddPostScreen';
 import { Feather } from '@expo/vector-icons';
+import { t } from '../i18n/t';
 import clsx from 'clsx';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -63,6 +64,7 @@ export default function BottomTabs() {
                 name="Home"
                 component={HomeScreen}
                 options={{
+                    tabBarLabel: t('tabs.home'),
                     tabBarIcon: ({ color, size }) => <Feather name="home" color={color} size={size} />
                 }}
             />
@@ -70,6 +72,7 @@ export default function BottomTabs() {
                 name="Memories"
                 component={MemoriesScreen}
                 options={{
+                    tabBarLabel: t('tabs.memories'),
                     tabBarIcon: ({ color, size }) => <Feather name="image" color={color} size={size} />
                 }}
             />
@@ -89,6 +92,7 @@ export default function BottomTabs() {
                 name="Calendar"
                 component={CalendarScreen}
                 options={{
+                    tabBarLabel: t('tabs.calendar'),
                     tabBarIcon: ({ color, size }) => <Feather name="calendar" color={color} size={size} />
                 }}
             />
@@ -96,7 +100,7 @@ export default function BottomTabs() {
                 name="Setting"
                 component={SettingsScreen}
                 options={{
-                    tabBarLabel: "Settings",
+                    tabBarLabel: t('tabs.settings'),
                     tabBarIcon: ({ color, size }) => <Feather name="settings" color={color} size={size} />
                 }}
             />
