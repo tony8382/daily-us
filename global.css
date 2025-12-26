@@ -1,3 +1,32 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 255 255 255; /* white */
+    --surface: 244 244 245; /* zinc-100 */
+    --surface-highlight: 228 228 231; /* zinc-200 */
+    
+    --text-primary: 24 24 27; /* zinc-950 */
+    --text-secondary: 113 113 122; /* zinc-500 */
+    
+    --primary: 239 68 68; /* red-500 */
+    
+    --border: 228 228 231; /* zinc-200 */
+  }
+
+  .dark {
+    --background: 9 9 11; /* zinc-950 */
+    --surface: 24 24 27; /* zinc-900 */
+    --surface-highlight: 39 39 42; /* zinc-800 */
+    
+    --text-primary: 255 255 255; /* white */
+    --text-secondary: 161 161 170; /* zinc-400 */
+    
+    --primary: 239 68 68; /* red-500 */
+    
+    --border: 39 39 42; /* zinc-800 */
+  }
+}
+
