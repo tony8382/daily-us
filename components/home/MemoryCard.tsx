@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Image, TouchableOpacity, Modal, Dimensions, FlatList, Share } from 'react-native';
+import { View, Image, TouchableOpacity, Modal, Dimensions, FlatList, Share, TextInput, KeyboardAvoidingView, Platform, Keyboard, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Feather, Ionicons } from '@expo/vector-icons';
-import { FeedItem } from '../../services/api.types';
+import { FeedItem, User } from '../../services/api.types';
+import { api } from '../../services/dailyUsApi';
+import { MOCK_USER_CURRENT } from '../../data/mock';
 import { ThemedText } from '../ui/ThemedText';
 import { t } from '../../i18n/t';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -275,9 +278,40 @@ const MediaGrid = ({ items, onMediaPress }: { items: string[], onMediaPress: (in
     )
 }
 
+const ResponseItem = ({ response, onDelete, canDelete }: { response: any; onDelete: (id: string) => void, canDelete: boolean }) => (
+    <View className="flex-row items-center justify-between py-2 border-b border-border/50">
+        <View className="flex-1 pr-4">
+            <View className="flex-row items-center gap-2 mb-0.5">
+                <ThemedText className="text-xs font-bold text-text-primary">{response.userName}</ThemedText>
+                <ThemedText className="text-[10px] text-text-secondary">
+                    {new Date(response.createdDate).toLocaleDateString()}
+                </ThemedText>
+            </View>
+            <ThemedText className="text-sm text-text-secondary">{response.message}</ThemedText>
+        </View>
+        {canDelete && (
+            <TouchableOpacity
+                onPress={() => onDelete(response.id)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+                <Feather name="trash-2" size={12} className="text-text-secondary/50" />
+            </TouchableOpacity>
+        )}
+    </View>
+);
+
 export const MemoryCard = ({ item }: { item: FeedItem }) => {
+    const navigation = useNavigation<any>();
+    const currentUserId = MOCK_USER_CURRENT.id;
     const [previewVisible, setPreviewVisible] = useState(false);
     const [previewIndex, setPreviewIndex] = useState(0);
+    const [responses, setResponses] = useState(item.responses || []);
+    const [showReplyInput, setShowReplyInput] = useState(false);
+    const [replyText, setReplyText] = useState('');
+    const [isLiked, setIsLiked] = useState(item.isLiked);
+    const [isPartnerLiked, setIsPartnerLiked] = useState(item.isPartnerLiked);
+    const [partnerName] = useState('Mike'); // Mock partner name
+    const [myName] = useState('Sarah'); // Mock my name
 
     // Format date from lastUpdatedDate
     const date = new Date(item.lastUpdatedDate);
@@ -287,6 +321,120 @@ export const MemoryCard = ({ item }: { item: FeedItem }) => {
     const handleMediaPress = (index: number) => {
         setPreviewIndex(index);
         setPreviewVisible(true);
+    };
+
+    const handleSendReply = () => {
+        if (!replyText.trim()) return;
+
+        const newResponse = {
+            id: `r-${Date.now()}`,
+            userId: 'u1', // Hardcoded as current user for now
+            userName: 'Sarah', // Hardcoded for now
+            createdDate: new Date(),
+            message: replyText.trim(),
+        };
+
+        setResponses([...responses, newResponse]);
+        setReplyText('');
+        setShowReplyInput(false);
+        Keyboard.dismiss();
+    };
+
+    const handleToggleLike = async () => {
+        try {
+            await api.toggleLike(item.id);
+            setIsLiked(!isLiked);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const getLikeText = () => {
+        if (isLiked && isPartnerLiked) {
+            return t('feed.bothLiked', { me: myName, partner: partnerName });
+        }
+        if (isLiked) {
+            return t('feed.onlyMeLiked', { me: myName });
+        }
+        if (isPartnerLiked) {
+            return t('feed.onlyPartnerLiked', { partner: partnerName });
+        }
+        return t('feed.noLikes');
+    };
+
+    const getLikeIcon = () => {
+        if (isLiked && isPartnerLiked) return "heart-sharp";
+        if (isLiked) return "heart";
+        return "heart-outline";
+    };
+
+    const getLikeColor = () => {
+        if (isLiked && isPartnerLiked) return "#ec4899";
+        if (isLiked) return "#ef4444";
+        return "#71717a";
+    };
+
+    const handleDeleteResponse = async (id: string) => {
+        Alert.alert(
+            t('feed.deleteReplyTitle') || "Delete Reply",
+            t('feed.deleteReplyMessage') || "Are you sure you want to delete this reply?",
+            [
+                { text: t('common.cancel') || "Cancel", style: "cancel" },
+                {
+                    text: t('common.delete') || "Delete",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            await api.deleteResponse(item.id, id);
+                            setResponses(responses.filter(r => r.id !== id));
+                        } catch (error) {
+                            console.error('Failed to delete response', error);
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
+    const handleMenuPress = () => {
+        Alert.alert(
+            t('feed.menuTitle') || "Memory Actions",
+            t('feed.menuMessage') || "What would you like to do?",
+            [
+                {
+                    text: t('feed.editMemory') || "Edit",
+                    onPress: () => navigation.navigate('NewPost', { editingPost: item })
+                },
+                {
+                    text: t('feed.deleteMemory') || "Delete",
+                    style: "destructive",
+                    onPress: confirmDeletePost
+                },
+                { text: t('common.cancel') || "Cancel", style: "cancel" }
+            ]
+        );
+    };
+
+    const confirmDeletePost = () => {
+        Alert.alert(
+            t('feed.deletePostTitle') || "Delete Memory",
+            t('feed.deletePostMessage') || "Are you sure you want to delete this memory?",
+            [
+                { text: t('common.cancel'), style: "cancel" },
+                {
+                    text: t('common.delete'),
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            await api.deletePost(item.id);
+                            Alert.alert(t('common.done'), t('feed.postDeleted') || "Memory deleted");
+                        } catch (error) {
+                            console.error(error);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     return (
@@ -315,36 +463,91 @@ export const MemoryCard = ({ item }: { item: FeedItem }) => {
                 {/* Header/Title */}
                 <View className="flex-row items-center justify-between mb-2 px-1">
                     <ThemedText variant="title" className="text-lg font-bold">{item.title}</ThemedText>
-                    <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                    <TouchableOpacity
+                        onPress={handleMenuPress}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
                         <Feather name="more-horizontal" size={20} className="text-text-secondary" />
                     </TouchableOpacity>
                 </View>
 
                 {/* Description */}
-                <ThemedText className="text-text-secondary text-sm leading-5 mb-4 px-1">
+                <ThemedText className="text-text-secondary text-sm leading-5 mb-2 px-1">
                     {item.description}
                 </ThemedText>
 
+                {/* Hashtags */}
+                {item.hashtags && item.hashtags.length > 0 && (
+                    <View className="flex-row flex-wrap gap-x-2 px-1 mb-4">
+                        {item.hashtags.map((tag, idx) => (
+                            <ThemedText key={idx} className="text-blue-500 text-xs font-medium">
+                                #{tag}
+                            </ThemedText>
+                        ))}
+                    </View>
+                )}
+
                 {/* Footer Actions */}
                 <View className="flex-row items-center justify-between mt-2 pt-3 border-t border-border">
-                    <View className="flex-row items-center gap-2">
+                    <TouchableOpacity
+                        onPress={handleToggleLike}
+                        className="flex-row items-center gap-2"
+                    >
                         <Ionicons
-                            name={item.isLiked ? "heart" : "heart-outline"}
-                            size={20}
-                            color={item.isLiked ? "#ef4444" : "#71717a"}
+                            name={getLikeIcon() as any}
+                            size={22}
+                            color={getLikeColor()}
                         />
                         <ThemedText className="text-xs text-text-secondary font-medium">
-                            <ThemedText className="font-bold text-text-primary">{item.likes.lastLikedBy.name}</ThemedText> {t('feed.likedThis')}
+                            {getLikeText()}
                         </ThemedText>
-                    </View>
+                    </TouchableOpacity>
 
                     <View className="flex-row items-center gap-4">
-                        <TouchableOpacity className="flex-row items-center gap-1.5 bg-surface px-3 py-1.5 rounded-full border border-border">
+                        <TouchableOpacity
+                            onPress={() => setShowReplyInput(!showReplyInput)}
+                            className="flex-row items-center gap-1.5 bg-surface px-3 py-1.5 rounded-full border border-border"
+                        >
                             <Feather name="message-circle" size={14} className="text-blue-500" />
                             <ThemedText className="text-xs text-text-secondary font-medium">{t('feed.reply')}</ThemedText>
                         </TouchableOpacity>
                     </View>
                 </View>
+
+                {/* Reply Input */}
+                {showReplyInput && (
+                    <View className="mt-4 pt-4 border-t border-border flex-row items-center gap-2">
+                        <TextInput
+                            className="flex-1 bg-surface border border-border rounded-xl px-3 py-2 text-text-primary text-sm"
+                            placeholder={t('feed.writeReply') || "Write a reply..."}
+                            placeholderTextColor="#a1a1aa"
+                            value={replyText}
+                            onChangeText={setReplyText}
+                            autoFocus
+                            multiline
+                        />
+                        <TouchableOpacity
+                            onPress={handleSendReply}
+                            className="bg-blue-500 w-10 h-10 rounded-xl items-center justify-center shadow-sm"
+                        >
+                            <Feather name="send" size={18} color="white" />
+                        </TouchableOpacity>
+                    </View>
+                )}
+
+                {/* Responses List */}
+                {responses.length > 0 && (
+                    <View className="mt-4 pt-2">
+                        {responses.map((response) => (
+                            <ResponseItem
+                                key={response.id}
+                                response={response}
+                                onDelete={handleDeleteResponse}
+                                canDelete={response.userId === currentUserId}
+                            />
+                        ))}
+                    </View>
+                )}
 
             </View>
 

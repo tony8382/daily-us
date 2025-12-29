@@ -30,12 +30,28 @@ class DailyUsApiService {
         return this.adapter.updateMood(note);
     }
 
-    createPost(post: Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked'>) {
+    createPost(post: Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked' | 'isPartnerLiked'>) {
         return this.adapter.createPost(post);
+    }
+
+    updatePost(postId: string, post: Partial<Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked' | 'isPartnerLiked'>>) {
+        return this.adapter.updatePost(postId, post);
+    }
+
+    toggleLike(postId: string) {
+        return this.adapter.toggleLike(postId);
+    }
+
+    deletePost(postId: string) {
+        return this.adapter.deletePost(postId);
     }
 
     get feed() {
         return this.adapter.getFeed();
+    }
+
+    deleteResponse(postId: string, responseId: string) {
+        return this.adapter.deleteResponse(postId, responseId);
     }
 }
 

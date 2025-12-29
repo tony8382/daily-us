@@ -25,6 +25,14 @@ export interface MoodStatus {
     authorId: string;
 }
 
+export interface Response {
+    id: string;
+    userId: string;
+    userName: string;
+    createdDate: Date;
+    message: string;
+}
+
 export interface FeedItem {
     id: string;
     type: 'photo' | 'video' | 'text';
@@ -39,7 +47,10 @@ export interface FeedItem {
         lastLikedBy: User;
     };
     isLiked: boolean; // Current user liked status
+    isPartnerLiked?: boolean; // Partner liked status
     comments: number;
+    hashtags?: string[];
+    responses?: Response[];
 }
 
 export interface DailyUsApiInterface {
@@ -47,5 +58,9 @@ export interface DailyUsApiInterface {
     getMoodStatus(): Promise<MoodStatus>;
     updateMood(note: string): Promise<MoodStatus>;
     getFeed(): Promise<FeedItem[]>;
-    createPost(post: Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked'>): Promise<FeedItem>;
+    createPost(post: Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked' | 'isPartnerLiked'>): Promise<FeedItem>;
+    updatePost(postId: string, post: Partial<Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked' | 'isPartnerLiked'>>): Promise<FeedItem>;
+    toggleLike(postId: string): Promise<FeedItem>;
+    deletePost(postId: string): Promise<void>;
+    deleteResponse(postId: string, responseId: string): Promise<void>;
 }

@@ -1,6 +1,6 @@
 import { Feather, Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import clsx from 'clsx';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useCallback, useState } from 'react';
@@ -13,7 +13,11 @@ import { api } from '../services/dailyUsApi';
 
 export default function AddPostScreen() {
     const navigation = useNavigation();
+    const route = useRoute<any>();
     const insets = useSafeAreaInsets();
+
+    const editingPost = route.params?.editingPost;
+    const isEditing = !!editingPost;
 
     // Config from User
     const config = MOCK_USER_CURRENT.config || { maxImagesPerPost: 5, maxDescriptionLength: 200 };
@@ -28,8 +32,17 @@ export default function AddPostScreen() {
 
     useFocusEffect(
         useCallback(() => {
-            resetForm();
-        }, [])
+            if (isEditing) {
+                setSelectedImages(editingPost.media || []);
+                setTitle(editingPost.title || '');
+                setDescription(editingPost.description || '');
+                setSelectedDate(new Date(editingPost.lastUpdatedDate || new Date()));
+                // If hashtags are part of description or separate, need to handle. 
+                // Currently FeedItem doesn't have hashtags but UI does.
+            } else {
+                resetForm();
+            }
+        }, [isEditing, editingPost])
     );
 
     const pickImage = async () => {
@@ -91,18 +104,27 @@ export default function AddPostScreen() {
         }
 
         try {
-            await api.createPost({
-                type: selectedImages.length > 0 ? 'photo' : 'text',
-                title,
-                description,
-                media: selectedImages,
-                lastUpdatedDate: selectedDate,
-            });
+            if (isEditing) {
+                await api.updatePost(editingPost.id, {
+                    title,
+                    description,
+                    media: selectedImages,
+                    lastUpdatedDate: selectedDate,
+                });
+            } else {
+                await api.createPost({
+                    type: selectedImages.length > 0 ? 'photo' : 'text',
+                    title,
+                    description,
+                    media: selectedImages,
+                    lastUpdatedDate: selectedDate,
+                });
+            }
             resetForm();
             navigation.goBack();
         } catch (error) {
             console.error(error);
-            Alert.alert(t('common.error'), t('addPost.errorCreate'));
+            Alert.alert(t('common.error'), isEditing ? "Failed to update" : t('addPost.errorCreate'));
         }
     };
 
@@ -119,9 +141,13 @@ export default function AddPostScreen() {
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <ThemedText className="text-text-secondary text-base">{t('addPost.cancel')}</ThemedText>
                 </TouchableOpacity>
-                <ThemedText className="text-lg font-bold">{t('addPost.title')}</ThemedText>
+                <ThemedText className="text-lg font-bold">
+                    {isEditing ? (t('addPost.editTitle') || 'Edit Memory') : t('addPost.title')}
+                </ThemedText>
                 <TouchableOpacity onPress={handlePost}>
-                    <ThemedText className="text-blue-500 font-bold text-base">{t('addPost.post')}</ThemedText>
+                    <ThemedText className="text-blue-500 font-bold text-base">
+                        {isEditing ? (t('common.done') || 'Save') : t('addPost.post')}
+                    </ThemedText>
                 </TouchableOpacity>
             </View>
 
@@ -252,7 +278,9 @@ export default function AddPostScreen() {
                         onPress={handlePost}
                         className="bg-blue-500 rounded-3xl py-5 items-center justify-center shadow-lg shadow-blue-500/25"
                     >
-                        <ThemedText className="text-white font-bold text-lg">{t('addPost.postButton')}</ThemedText>
+                        <ThemedText className="text-white font-bold text-lg">
+                            {isEditing ? (t('common.done') || 'Save Changes') : t('addPost.postButton')}
+                        </ThemedText>
                     </TouchableOpacity>
                 </View>
 

@@ -44,9 +44,20 @@ export const MOCK_FEED: FeedItem[] = [
             'https://images.unsplash.com/photo-1504150558240-0b4fd8946624?q=80&w=928&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Couple/People
         ],
         location: 'Kyoto, Japan',
-        likes: { count: 3, lastLikedBy: MOCK_USER_PARTNER },
+        likes: { count: 1, lastLikedBy: MOCK_USER_PARTNER },
         isLiked: false,
+        isPartnerLiked: true,
         comments: 2,
+        hashtags: ['Kyoto', 'Matcha', 'Together'],
+        responses: [
+            {
+                id: 'r1',
+                userId: 'u2',
+                userName: 'Mike',
+                createdDate: new Date('2023-10-10T11:00:00Z'),
+                message: 'That matcha looks incredible! 🍵'
+            }
+        ]
     },
     {
         id: 'f2',
@@ -58,9 +69,27 @@ export const MOCK_FEED: FeedItem[] = [
         media: [
             'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80', // TV/Movie placeholder
         ],
-        likes: { count: 1, lastLikedBy: MOCK_USER_CURRENT },
-        isLiked: true, // This one is liked by current user
+        likes: { count: 2, lastLikedBy: MOCK_USER_CURRENT },
+        isLiked: true,
+        isPartnerLiked: true,
         comments: 4,
+        hashtags: ['MovieNight', 'HP', 'Cozy'],
+        responses: [
+            {
+                id: 'r2',
+                userId: 'u1',
+                userName: 'Sarah',
+                createdDate: new Date('2023-09-12T19:00:00Z'),
+                message: 'I told you we should have started earlier! 😂'
+            },
+            {
+                id: 'r3',
+                userId: 'u2',
+                userName: 'Mike',
+                createdDate: new Date('2023-09-12T19:05:00Z'),
+                message: 'But the snacks were just getting good...'
+            }
+        ]
     },
     {
         id: 'f3',
@@ -72,8 +101,11 @@ export const MOCK_FEED: FeedItem[] = [
         media: [
             'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80', // TV/Movie placeholder
         ],
-        likes: { count: 1, lastLikedBy: MOCK_USER_CURRENT },
-        isLiked: true,
+        likes: { count: 0, lastLikedBy: MOCK_USER_CURRENT },
+        isLiked: false,
+        isPartnerLiked: false,
         comments: 4,
+        hashtags: ['Random'],
+        responses: []
     }
 ];

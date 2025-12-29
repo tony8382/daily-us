@@ -5,7 +5,7 @@ import { DailyUsApiInterface, CoupleProfile, FeedItem, MoodStatus, User } from '
 // For now, I'll copy the data structure here to be self-contained in the service layer 
 // or import it if we want to keep `data/mock.ts` as the "database".
 // Let's import to minimize code duplication for now, but eventually `data/mock.ts` should be retired.
-import { MOCK_COUPLE, MOCK_FEED, MOCK_MOOD, MOCK_USER_CURRENT } from '../../data/mock';
+import { MOCK_COUPLE, MOCK_FEED, MOCK_MOOD, MOCK_USER_CURRENT, MOCK_USER_PARTNER } from '../../data/mock';
 
 export class MockAdapter implements DailyUsApiInterface {
     async getCoupleProfile(): Promise<CoupleProfile> {
@@ -27,7 +27,7 @@ export class MockAdapter implements DailyUsApiInterface {
         return { ...MOCK_MOOD };
     }
 
-    async createPost(post: Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked'>): Promise<FeedItem> {
+    async createPost(post: Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked' | 'isPartnerLiked'>): Promise<FeedItem> {
         await new Promise(resolve => setTimeout(resolve, 800));
 
         const newPost: FeedItem = {
@@ -37,6 +37,7 @@ export class MockAdapter implements DailyUsApiInterface {
             likes: { count: 0, lastLikedBy: MOCK_USER_CURRENT }, // Default likes
             comments: 0,
             isLiked: false,
+            isPartnerLiked: false,
         };
 
         // Prepend to mock feed
@@ -45,8 +46,45 @@ export class MockAdapter implements DailyUsApiInterface {
         return newPost;
     }
 
+    async updatePost(postId: string, postUpdates: Partial<Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked' | 'isPartnerLiked'>>): Promise<FeedItem> {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const index = MOCK_FEED.findIndex(p => p.id === postId);
+        if (index === -1) throw new Error('Post not found');
+
+        MOCK_FEED[index] = { ...MOCK_FEED[index], ...postUpdates, lastUpdatedDate: new Date() };
+        return MOCK_FEED[index];
+    }
+
+    async deletePost(postId: string): Promise<void> {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const index = MOCK_FEED.findIndex(p => p.id === postId);
+        if (index !== -1) {
+            MOCK_FEED.splice(index, 1);
+        }
+    }
+
+    async toggleLike(postId: string): Promise<FeedItem> {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const post = MOCK_FEED.find(p => p.id === postId);
+        if (!post) throw new Error('Post not found');
+
+        post.isLiked = !post.isLiked;
+        post.likes.count = post.isLiked ? post.likes.count + 1 : post.likes.count - 1;
+        post.likes.lastLikedBy = post.isLiked ? MOCK_USER_CURRENT : MOCK_USER_PARTNER; // Simplified for mock
+
+        return { ...post };
+    }
+
     async getFeed(): Promise<FeedItem[]> {
         await new Promise(resolve => setTimeout(resolve, 800));
         return MOCK_FEED;
+    }
+
+    async deleteResponse(postId: string, responseId: string): Promise<void> {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const post = MOCK_FEED.find(p => p.id === postId);
+        if (post && post.responses) {
+            post.responses = post.responses.filter(r => r.id !== responseId);
+        }
     }
 }

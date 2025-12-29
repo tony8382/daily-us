@@ -10,8 +10,16 @@ const activeTranslations = translations[languageCode] || en;
 /**
  * Translate a key (e.g., 'common.loading')
  */
-export function t(key: string): string {
-    return key.split('.').reduce((acc, part) => acc && acc[part], activeTranslations) || key;
+export function t(key: string, variables?: Record<string, string>): string {
+    let translation = key.split('.').reduce((acc, part) => acc && acc[part], activeTranslations) || key;
+
+    if (variables) {
+        Object.entries(variables).forEach(([name, value]) => {
+            translation = translation.replace(`{{${name}}}`, value);
+        });
+    }
+
+    return translation;
 }
 
 /**
