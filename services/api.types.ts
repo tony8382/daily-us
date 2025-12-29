@@ -1,4 +1,4 @@
-export interface UserConfig {
+export interface CouplePreferences {
     maxImagesPerPost: number;
     maxDescriptionLength: number;
 }
@@ -7,15 +7,15 @@ export interface User {
     id: string;
     name: string;
     avatar: string;
-    config?: UserConfig;
 }
 
 export interface CoupleProfile {
-    user1: User;
-    user2: User;
+    me: User;
+    partner: User;
     anniversaryDate: string; // ISO String
     coverImage?: string;
     daysTogether: number;
+    preferences: CouplePreferences;
 }
 
 export interface MoodStatus {
@@ -42,12 +42,7 @@ export interface FeedItem {
     description: string;
     media: string[]; // URLs
     location?: string;
-    likes: {
-        count: number;
-        lastLikedBy: User;
-    };
-    isLiked: boolean; // Current user liked status
-    isPartnerLiked?: boolean; // Partner liked status
+    likes: string[]; // Array of user IDs who liked the post
     comments: number;
     hashtags?: string[];
     responses?: Response[];
@@ -58,8 +53,8 @@ export interface DailyUsApiInterface {
     getMoodStatus(): Promise<MoodStatus>;
     updateMood(note: string): Promise<MoodStatus>;
     getFeed(): Promise<FeedItem[]>;
-    createPost(post: Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked' | 'isPartnerLiked'>): Promise<FeedItem>;
-    updatePost(postId: string, post: Partial<Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked' | 'isPartnerLiked'>>): Promise<FeedItem>;
+    createPost(post: Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate'>): Promise<FeedItem>;
+    updatePost(postId: string, post: Partial<Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate'>>): Promise<FeedItem>;
     toggleLike(postId: string): Promise<FeedItem>;
     deletePost(postId: string): Promise<void>;
     deleteResponse(postId: string, responseId: string): Promise<void>;

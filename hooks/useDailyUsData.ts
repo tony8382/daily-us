@@ -8,26 +8,29 @@ export const useDailyUsData = () => {
     const [feed, setFeed] = useState<FeedItem[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                const [profileData, moodData, feedData] = await Promise.all([
-                    api.profile,
-                    api.mood,
-                    api.feed,
-                ]);
-                setProfile(profileData);
-                setMood(moodData);
-                setFeed(feedData);
-            } catch (error) {
-                console.error('Failed to load data', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const loadData = async (silent = false) => {
+        if (!silent) setLoading(true);
+        try {
+            const [profileData, moodData, feedData] = await Promise.all([
+                api.profile,
+                api.mood,
+                api.feed,
+            ]);
+            setProfile(profileData);
+            setMood(moodData);
+            setFeed(feedData);
+        } catch (error) {
+            console.error('Failed to load data', error);
+        } finally {
+            if (!silent) setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         loadData();
     }, []);
+
+    const refresh = () => loadData(true);
 
     const updateMood = async (note: string) => {
         try {
@@ -38,5 +41,5 @@ export const useDailyUsData = () => {
         }
     };
 
-    return { profile, mood, feed, loading, updateMood };
+    return { profile, mood, feed, loading, refresh, updateMood };
 };

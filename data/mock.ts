@@ -4,10 +4,6 @@ export const MOCK_USER_CURRENT: User = {
     id: 'u1',
     name: 'Sarah',
     avatar: 'https://i.pravatar.cc/150?u=sarah',
-    config: {
-        maxImagesPerPost: 5,
-        maxDescriptionLength: 200,
-    }
 };
 
 export const MOCK_USER_PARTNER: User = {
@@ -17,10 +13,14 @@ export const MOCK_USER_PARTNER: User = {
 };
 
 export const MOCK_COUPLE: CoupleProfile = {
-    user1: MOCK_USER_CURRENT,
-    user2: MOCK_USER_PARTNER,
+    me: MOCK_USER_CURRENT,
+    partner: MOCK_USER_PARTNER,
     anniversaryDate: '2022-05-14', // Example
     daysTogether: 1240,
+    preferences: {
+        maxImagesPerPost: 5,
+        maxDescriptionLength: 200,
+    }
 };
 
 export const MOCK_MOOD: MoodStatus = {
@@ -44,9 +44,7 @@ export const MOCK_FEED: FeedItem[] = [
             'https://images.unsplash.com/photo-1504150558240-0b4fd8946624?q=80&w=928&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Couple/People
         ],
         location: 'Kyoto, Japan',
-        likes: { count: 1, lastLikedBy: MOCK_USER_PARTNER },
-        isLiked: false,
-        isPartnerLiked: true,
+        likes: ['u2'],
         comments: 2,
         hashtags: ['Kyoto', 'Matcha', 'Together'],
         responses: [
@@ -69,9 +67,7 @@ export const MOCK_FEED: FeedItem[] = [
         media: [
             'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80', // TV/Movie placeholder
         ],
-        likes: { count: 2, lastLikedBy: MOCK_USER_CURRENT },
-        isLiked: true,
-        isPartnerLiked: true,
+        likes: ['u1', 'u2'],
         comments: 4,
         hashtags: ['MovieNight', 'HP', 'Cozy'],
         responses: [
@@ -101,9 +97,7 @@ export const MOCK_FEED: FeedItem[] = [
         media: [
             'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80', // TV/Movie placeholder
         ],
-        likes: { count: 0, lastLikedBy: MOCK_USER_CURRENT },
-        isLiked: false,
-        isPartnerLiked: false,
+        likes: [],
         comments: 4,
         hashtags: ['Random'],
         responses: []

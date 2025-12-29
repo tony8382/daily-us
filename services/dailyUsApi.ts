@@ -8,6 +8,8 @@ import { FeedItem } from './api.types';
 
 class DailyUsApiService {
     private adapter: DailyUsApiInterface;
+    private profileCache: Promise<any> | null = null;
+    private moodCache: Promise<any> | null = null;
 
     constructor() {
         if (USE_MOCK) {
@@ -19,22 +21,29 @@ class DailyUsApiService {
     }
 
     get profile() {
-        return this.adapter.getCoupleProfile();
+        if (!this.profileCache) {
+            this.profileCache = this.adapter.getCoupleProfile();
+        }
+        return this.profileCache;
     }
 
     get mood() {
-        return this.adapter.getMoodStatus();
+        if (!this.moodCache) {
+            this.moodCache = this.adapter.getMoodStatus();
+        }
+        return this.moodCache;
     }
 
-    updateMood(note: string) {
-        return this.adapter.updateMood(note);
+    async updateMood(note: string) {
+        this.moodCache = this.adapter.updateMood(note);
+        return this.moodCache;
     }
 
-    createPost(post: Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked' | 'isPartnerLiked'>) {
+    createPost(post: Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate'>) {
         return this.adapter.createPost(post);
     }
 
-    updatePost(postId: string, post: Partial<Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked' | 'isPartnerLiked'>>) {
+    updatePost(postId: string, post: Partial<Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate'>>) {
         return this.adapter.updatePost(postId, post);
     }
 

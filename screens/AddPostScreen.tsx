@@ -7,7 +7,7 @@ import React, { useCallback, useState } from 'react';
 import { Alert, Image, Modal, Platform, ScrollView, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from '../components/ui/ThemedText';
-import { MOCK_USER_CURRENT } from '../data/mock';
+import { useDailyUsData } from '../hooks/useDailyUsData';
 import { t, getLocale } from '../i18n/t';
 import { api } from '../services/dailyUsApi';
 
@@ -19,8 +19,10 @@ export default function AddPostScreen() {
     const editingPost = route.params?.editingPost;
     const isEditing = !!editingPost;
 
-    // Config from User
-    const config = MOCK_USER_CURRENT.config || { maxImagesPerPost: 5, maxDescriptionLength: 200 };
+    const { profile } = useDailyUsData();
+
+    // Config from Preferences
+    const config = profile?.preferences || { maxImagesPerPost: 5, maxDescriptionLength: 200 };
 
     const [selectedImages, setSelectedImages] = useState<string[]>([]);
     const [title, setTitle] = useState('');

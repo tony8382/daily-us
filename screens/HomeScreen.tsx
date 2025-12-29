@@ -1,6 +1,6 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { View, FlatList, ActivityIndicator } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { HomeHeader } from '../components/home/HomeHeader';
 import { MoodStatusCard } from '../components/home/MoodStatusCard';
 import { MemoryCard } from '../components/home/MemoryCard';
@@ -9,9 +9,15 @@ import { ThemedText } from '../components/ui/ThemedText';
 import { t } from '../i18n/t';
 
 export default function HomeScreen() {
-    const { profile, mood, feed, loading, updateMood } = useDailyUsData();
+    const { profile, mood, feed, loading, refresh, updateMood } = useDailyUsData();
     const ref = useRef<FlatList>(null);
     const navigation = useNavigation();
+
+    useFocusEffect(
+        useCallback(() => {
+            refresh();
+        }, [])
+    );
 
     useEffect(() => {
         // Manually handle tab press to ensure scroll-to-top works
@@ -58,6 +64,7 @@ export default function HomeScreen() {
                 )}
                 contentContainerStyle={{ paddingBottom: 100 }}
                 showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
             />
         </View>
     );

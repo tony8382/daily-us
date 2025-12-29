@@ -80,6 +80,13 @@ export default function BottomTabs() {
             <Tab.Screen
                 name="NewPost"
                 component={AddPostScreen}
+                listeners={({ navigation }) => ({
+                    tabPress: (e) => {
+                        // Ensure we clear the editingPost param when clicking the "+" button
+                        e.preventDefault();
+                        navigation.navigate('NewPost', { editingPost: undefined });
+                    },
+                })}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <Feather name="plus" size={32} color="#ffffff" />

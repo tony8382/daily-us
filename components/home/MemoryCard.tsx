@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { FeedItem, User } from '../../services/api.types';
 import { api } from '../../services/dailyUsApi';
-import { MOCK_USER_CURRENT } from '../../data/mock';
+import { useDailyUsData } from '../../hooks/useDailyUsData';
 import { ThemedText } from '../ui/ThemedText';
 import { t } from '../../i18n/t';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,12 +14,73 @@ import Animated, {
     useAnimatedStyle,
     withSpring,
     withTiming,
+    withDelay,
     runOnJS,
     interpolate
 } from 'react-native-reanimated';
 import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+const FallingHeart = () => {
+    const startX = Math.random() * SCREEN_WIDTH;
+    const endX = startX + (Math.random() - 0.5) * 150;
+    const duration = 2500 + Math.random() * 2000;
+    const delay = Math.random() * 2000;
+    const size = 15 + Math.random() * 25;
+    const color = ['#ef4444', '#ec4899', '#f43f5e', '#fb7185'][Math.floor(Math.random() * 4)];
+
+    const translateY = useSharedValue(-50);
+    const translateX = useSharedValue(startX);
+    const opacity = useSharedValue(1);
+    const rotate = useSharedValue(Math.random() * 360);
+
+    useEffect(() => {
+        translateY.value = withDelay(delay, withTiming(SCREEN_HEIGHT + 50, { duration }));
+        translateX.value = withDelay(delay, withTiming(endX, { duration }));
+        opacity.value = withDelay(delay + duration * 0.8, withTiming(0, { duration: duration * 0.2 }));
+        rotate.value = withDelay(delay, withTiming(rotate.value + (Math.random() > 0.5 ? 360 : -360), { duration }));
+    }, []);
+
+    const style = useAnimatedStyle(() => ({
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        transform: [
+            { translateY: translateY.value },
+            { translateX: translateX.value },
+            { rotate: `${rotate.value}deg` }
+        ],
+        opacity: opacity.value,
+    }));
+
+    return (
+        <Animated.View style={style} pointerEvents="none">
+            <Ionicons name="heart" size={size} color={color} />
+        </Animated.View>
+    );
+};
+
+const HeartShower = ({ visible, onClose }: { visible: boolean; onClose: () => void }) => {
+    useEffect(() => {
+        if (visible) {
+            const timer = setTimeout(onClose, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [visible]);
+
+    if (!visible) return null;
+
+    return (
+        <Modal transparent visible={visible} animationType="fade">
+            <View style={{ flex: 1, backgroundColor: 'transparent' }} pointerEvents="none">
+                {[...Array(40)].map((_, i) => (
+                    <FallingHeart key={i} />
+                ))}
+            </View>
+        </Modal>
+    );
+};
 
 const DateIndicator = ({ day, month }: { day: string; month: string }) => (
     <View className="w-12 items-center pt-2">
@@ -302,16 +363,48 @@ const ResponseItem = ({ response, onDelete, canDelete }: { response: any; onDele
 
 export const MemoryCard = ({ item }: { item: FeedItem }) => {
     const navigation = useNavigation<any>();
-    const currentUserId = MOCK_USER_CURRENT.id;
+    const { profile } = useDailyUsData();
+
+    // Fallback to mock values if profile not yet loaded to prevent crashes,
+    // though in practice HomeScreen only renders this when loading is false.
+    const currentUser = profile?.me;
+    const partnerUser = profile?.partner;
+
+    const myId = currentUser?.id || 'u1';
+    const partnerId = partnerUser?.id || 'u2';
+    const myName = currentUser?.name || 'Sarah';
+    const partnerName = partnerUser?.name || 'Mike';
+    const currentUserId = myId;
+
     const [previewVisible, setPreviewVisible] = useState(false);
     const [previewIndex, setPreviewIndex] = useState(0);
     const [responses, setResponses] = useState(item.responses || []);
     const [showReplyInput, setShowReplyInput] = useState(false);
     const [replyText, setReplyText] = useState('');
-    const [isLiked, setIsLiked] = useState(item.isLiked);
-    const [isPartnerLiked, setIsPartnerLiked] = useState(item.isPartnerLiked);
-    const [partnerName] = useState('Mike'); // Mock partner name
-    const [myName] = useState('Sarah'); // Mock my name
+    const [likes, setLikes] = useState(item.likes || []);
+    const [showerVisible, setShowerVisible] = useState(false);
+
+    const isLiked = likes.includes(myId);
+    const isPartnerLiked = likes.includes(partnerId);
+
+    useEffect(() => {
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                setShowReplyInput(false);
+            }
+        );
+
+        return () => {
+            keyboardDidHideListener.remove();
+        };
+    }, []);
+
+    // Sync state with props when item changes (important for refreshes)
+    useEffect(() => {
+        setResponses(item.responses || []);
+        setLikes(item.likes || []);
+    }, [item.responses, item.likes]);
 
     // Format date from lastUpdatedDate
     const date = new Date(item.lastUpdatedDate);
@@ -328,8 +421,8 @@ export const MemoryCard = ({ item }: { item: FeedItem }) => {
 
         const newResponse = {
             id: `r-${Date.now()}`,
-            userId: 'u1', // Hardcoded as current user for now
-            userName: 'Sarah', // Hardcoded for now
+            userId: myId,
+            userName: myName,
             createdDate: new Date(),
             message: replyText.trim(),
         };
@@ -343,7 +436,11 @@ export const MemoryCard = ({ item }: { item: FeedItem }) => {
     const handleToggleLike = async () => {
         try {
             await api.toggleLike(item.id);
-            setIsLiked(!isLiked);
+            if (likes.includes(myId)) {
+                setLikes(likes.filter(id => id !== myId));
+            } else {
+                setLikes([...likes, myId]);
+            }
         } catch (error) {
             console.error(error);
         }
@@ -491,6 +588,8 @@ export const MemoryCard = ({ item }: { item: FeedItem }) => {
                 <View className="flex-row items-center justify-between mt-2 pt-3 border-t border-border">
                     <TouchableOpacity
                         onPress={handleToggleLike}
+                        onLongPress={() => setShowerVisible(true)}
+                        delayLongPress={300}
                         className="flex-row items-center gap-2"
                     >
                         <Ionicons
@@ -550,6 +649,9 @@ export const MemoryCard = ({ item }: { item: FeedItem }) => {
                 )}
 
             </View>
+
+            {/* Heart Shower Animation */}
+            <HeartShower visible={showerVisible} onClose={() => setShowerVisible(false)} />
 
             {/* Media Preview Modal */}
             <MediaPreviewModal

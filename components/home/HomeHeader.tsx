@@ -21,16 +21,16 @@ export const HomeHeader = ({ profile }: { profile: CoupleProfile | null }) => {
                 {/* Overlapping Avatars */}
                 <View className="flex-row">
                     <View className="w-10 h-10 rounded-full border-2 border-background overflow-hidden z-10">
-                        <Image source={{ uri: profile.user1.avatar }} className="w-full h-full" />
+                        <Image source={{ uri: profile.me.avatar }} className="w-full h-full" />
                     </View>
                     <View className="w-10 h-10 rounded-full border-2 border-background overflow-hidden z-0">
-                        <Image source={{ uri: profile.user2.avatar }} className="w-full h-full" />
+                        <Image source={{ uri: profile.partner.avatar }} className="w-full h-full" />
                     </View>
                 </View>
 
                 <View>
                     <ThemedText variant="default" className="font-bold">
-                        {profile.user1.name} & {profile.user2.name}
+                        {profile.me.name} & {profile.partner.name}
                     </ThemedText>
                     <View className="flex-row items-center space-x-1 gap-1">
                         <View className="w-2 h-2 rounded-full bg-green-500" />

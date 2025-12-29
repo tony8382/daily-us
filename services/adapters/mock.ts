@@ -27,17 +27,15 @@ export class MockAdapter implements DailyUsApiInterface {
         return { ...MOCK_MOOD };
     }
 
-    async createPost(post: Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked' | 'isPartnerLiked'>): Promise<FeedItem> {
+    async createPost(post: Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate'>): Promise<FeedItem> {
         await new Promise(resolve => setTimeout(resolve, 800));
 
         const newPost: FeedItem = {
             id: Math.random().toString(36).substr(2, 9),
             ...post,
-            createdDate: new Date(), // Created now
-            likes: { count: 0, lastLikedBy: MOCK_USER_CURRENT }, // Default likes
+            createdDate: new Date(),
+            likes: [],
             comments: 0,
-            isLiked: false,
-            isPartnerLiked: false,
         };
 
         // Prepend to mock feed
@@ -46,7 +44,7 @@ export class MockAdapter implements DailyUsApiInterface {
         return newPost;
     }
 
-    async updatePost(postId: string, postUpdates: Partial<Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate' | 'isLiked' | 'isPartnerLiked'>>): Promise<FeedItem> {
+    async updatePost(postId: string, postUpdates: Partial<Omit<FeedItem, 'id' | 'likes' | 'comments' | 'createdDate'>>): Promise<FeedItem> {
         await new Promise(resolve => setTimeout(resolve, 500));
         const index = MOCK_FEED.findIndex(p => p.id === postId);
         if (index === -1) throw new Error('Post not found');
@@ -68,9 +66,12 @@ export class MockAdapter implements DailyUsApiInterface {
         const post = MOCK_FEED.find(p => p.id === postId);
         if (!post) throw new Error('Post not found');
 
-        post.isLiked = !post.isLiked;
-        post.likes.count = post.isLiked ? post.likes.count + 1 : post.likes.count - 1;
-        post.likes.lastLikedBy = post.isLiked ? MOCK_USER_CURRENT : MOCK_USER_PARTNER; // Simplified for mock
+        const userId = MOCK_USER_CURRENT.id;
+        if (post.likes.includes(userId)) {
+            post.likes = post.likes.filter(id => id !== userId);
+        } else {
+            post.likes.push(userId);
+        }
 
         return { ...post };
     }
